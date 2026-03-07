@@ -81,6 +81,11 @@ body{background:var(--dark);color:#e0f0ff;font-family:'Exo 2',sans-serif;overflo
 /* CURSOR */
 .cursor{width:12px;height:12px;border-radius:50%;background:var(--neon-cyan);position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 15px var(--neon-cyan),0 0 30px var(--neon-cyan);transition:width .2s,height .2s;}
 .cursor-ring{width:36px;height:36px;border-radius:50%;border:1px solid rgba(0,255,247,0.4);position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .15s ease;}
+/* Safari-compatible custom cursor via SVG data URI */
+@supports (-webkit-hyphens:none){
+  body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='5' fill='%2300fff7' opacity='0.9'/%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%2300fff7' stroke-width='1.5' opacity='0.5'/%3E%3C/svg%3E") 12 12, auto;}
+  a,button,.job-card,.skill-tag,.project-card,.stat-box,.patent-card,.scene-thumb{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='8' fill='%2300fff7' opacity='0.9'/%3E%3Ccircle cx='15' cy='15' r='13' fill='none' stroke='%2300fff7' stroke-width='2' opacity='0.7'/%3E%3C/svg%3E") 15 15, pointer;}
+}
 
 /* GRID BG */
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-color) 1px,transparent 1px),linear-gradient(90deg,var(--grid-color) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
@@ -284,7 +289,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
 .holo-speech.show{opacity:1;}
 
 /* SOUND TOGGLE */
-.sound-btn{position:fixed;bottom:28px;right:155px;z-index:100;background:rgba(0,20,40,.85);border:1px solid rgba(0,212,255,.3);color:var(--neon-cyan);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:8px 14px;cursor:pointer;transition:all .3s;letter-spacing:.1em;}
+.sound-btn{position:fixed;bottom:28px;right:155px;z-index:100;background:rgba(0,20,40,.85);border:1px solid rgba(0,212,255,.3);color:var(--neon-cyan);font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:8px 14px;cursor:pointer;transition:all .3s;letter-spacing:.1em;animation:soundPulse 2s ease-in-out 3;}
+@keyframes soundPulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 20px rgba(0,212,255,.6);border-color:var(--neon-cyan);}}
 .sound-btn:hover{border-color:var(--neon-cyan);box-shadow:0 0 12px rgba(0,212,255,.3);}
 
 /* SCROLLBAR */
@@ -912,6 +918,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
 
 <script>
 // ====== AUDIO ENGINE ======
+// Safari requires audio context to be created on user gesture
+document.addEventListener('click', function unlockAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+}, { once: true });
 // Note: Sound starts OFF by default (browser autoplay policy)
 // User must click to enable - this is correct behavior
 let soundOn = false;
@@ -969,7 +982,15 @@ function playPatentFanfare() {
 function toggleSound() {
   soundOn = !soundOn;
   document.getElementById('soundBtn').textContent = soundOn ? '🔊 SOUND ON' : '🔇 SOUND OFF';
-  if (soundOn) { getAudioCtx(); playTone(440, 'sine', 0.1, 0.05); }
+  if (soundOn) {
+    const ctx = getAudioCtx();
+    // Safari needs explicit resume after user gesture
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => playTone(440, 'sine', 0.1, 0.05));
+    } else {
+      playTone(440, 'sine', 0.1, 0.05);
+    }
+  }
 }
 
 // ====== CUSTOM CURSOR ======
