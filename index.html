@@ -123,25 +123,130 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
 .scroll-arrow{width:2px;height:40px;background:linear-gradient(to bottom,var(--neon-cyan),transparent);}
 @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
 
-/* ====== ROAD SCENE (SCROLL-DRIVEN) ====== */
-#road-wrapper{position:relative;height:300px;overflow:hidden;z-index:1;}
-#road-sticky{position:sticky;top:0;height:160px;background:linear-gradient(to top,#080e1c 0%,#0a1221 60%,transparent 100%);overflow:hidden;}
-.road-surface{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(to top,#0c1525 0%,#111827 70%,transparent 100%);}
-.road-center-line{position:absolute;bottom:40px;left:0;right:0;height:3px;background:repeating-linear-gradient(90deg,var(--neon-cyan) 0,var(--neon-cyan) 50px,transparent 50px,transparent 110px);opacity:.45;animation:roadScroll .5s linear infinite;}
-.road-edge-line{position:absolute;bottom:4px;left:0;right:0;height:2px;background:var(--neon-orange);box-shadow:0 0 10px var(--neon-orange);opacity:.5;}
-@keyframes roadScroll{from{background-position:0 0;}to{background-position:-110px 0;}}
+/* ====== VERTICAL ROAD + STICKY CAR ====== */
+/* Wrapper wraps experience section with road on left */
+#exp-road-wrapper{display:flex;gap:0;position:relative;z-index:2;}
 
-/* THE CAR — scroll driven horizontal position */
-#scroll-car{position:absolute;bottom:28px;left:10%;transition:left .1s linear;filter:drop-shadow(0 0 18px rgba(0,212,255,.7));animation:carBob 2.5s ease-in-out infinite;}
-@keyframes carBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.headlight{position:absolute;bottom:52px;width:220px;height:44px;background:linear-gradient(90deg,rgba(0,255,247,.28),transparent);clip-path:polygon(0 38%,100% 0%,100% 100%,0 62%);pointer-events:none;}
-.speed-lines{position:absolute;bottom:46px;display:flex;flex-direction:column;gap:7px;}
-.sl{height:2px;background:linear-gradient(90deg,transparent,var(--neon-cyan));border-radius:2px;animation:slAnim .35s linear infinite;opacity:.55;}
-.sl:nth-child(1){width:55px;animation-delay:0s;}
-.sl:nth-child(2){width:35px;animation-delay:.08s;}
-.sl:nth-child(3){width:70px;animation-delay:.04s;}
-.sl:nth-child(4){width:28px;animation-delay:.12s;}
-@keyframes slAnim{from{transform:translateX(0);opacity:.55;}to{transform:translateX(-30px);opacity:0;}}
+/* Vertical road strip — sticky on left */
+#vertical-road{
+  width:110px;flex-shrink:0;position:relative;
+}
+#road-track{
+  position:sticky;top:50vh;
+  transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;
+  padding:10px 0;
+}
+
+/* Road lane behind car */
+.vroad-lane{
+  position:fixed;left:0;top:0;bottom:0;width:110px;
+  background:linear-gradient(90deg,#050a14 0%,#080f1e 60%,#060c1a 100%);
+  z-index:1;
+  border-right:1px solid rgba(0,212,255,0.08);
+}
+
+/* Scrolling road markings */
+.vroad-lines{
+  position:fixed;left:52px;top:0;bottom:0;width:6px;
+  background:repeating-linear-gradient(
+    180deg,
+    var(--neon-cyan) 0px, var(--neon-cyan) 30px,
+    transparent 30px, transparent 65px
+  );
+  opacity:0.35;
+  animation:vRoadScroll 0.5s linear infinite;
+  z-index:2;
+}
+@keyframes vRoadScroll{
+  from{background-position:0 0;}
+  to{background-position:0 95px;}
+}
+
+/* Edge glow lines on road */
+.vroad-edge-left{
+  position:fixed;left:8px;top:0;bottom:0;width:2px;
+  background:var(--neon-orange);
+  box-shadow:0 0 8px var(--neon-orange);
+  opacity:0.4;z-index:2;
+}
+.vroad-edge-right{
+  position:fixed;left:100px;top:0;bottom:0;width:2px;
+  background:rgba(0,212,255,0.3);
+  z-index:2;
+}
+
+/* THE CAR — rotated 90deg, sticky in center of road */
+#vertical-car{
+  position:fixed;
+  left:50px;
+  top:50vh;
+  transform:translate(-50%,-50%) rotate(90deg);
+  width:110px;
+  filter:drop-shadow(0 0 16px rgba(0,212,255,0.8));
+  animation:vCarBob 3s ease-in-out infinite;
+  z-index:10;
+  pointer-events:none;
+}
+@keyframes vCarBob{
+  0%,100%{left:50px;}
+  50%{left:54px;}
+}
+
+/* Headlight beam — points downward */
+.v-headlight{
+  position:fixed;
+  left:50px;
+  top:calc(50vh + 55px);
+  transform:translateX(-50%);
+  width:40px;height:180px;
+  background:linear-gradient(180deg,rgba(0,255,247,0.25),transparent);
+  clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%);
+  pointer-events:none;z-index:9;
+}
+
+/* Speed lines — horizontal puffs behind car (upward) */
+.v-speed-lines{
+  position:fixed;
+  left:50px;
+  top:calc(50vh - 80px);
+  transform:translateX(-50%);
+  display:flex;flex-direction:column;gap:6px;
+  align-items:center;
+  z-index:9;pointer-events:none;
+}
+.vsl{
+  width:3px;border-radius:2px;
+  background:linear-gradient(180deg,transparent,var(--neon-cyan));
+  animation:vslAnim 0.4s linear infinite;
+  opacity:0.5;
+}
+.vsl:nth-child(1){height:20px;animation-delay:0s;left:-8px;position:relative;}
+.vsl:nth-child(2){height:14px;animation-delay:.1s;left:0px;position:relative;}
+.vsl:nth-child(3){height:24px;animation-delay:.05s;left:8px;position:relative;}
+@keyframes vslAnim{
+  from{transform:translateY(0);opacity:0.5;}
+  to{transform:translateY(-20px);opacity:0;}
+}
+
+/* Experience content pushed right of road */
+#exp-content{flex:1;min-width:0;padding:80px 5vw 80px 40px;}
+
+/* Job card highlight when car is at that position */
+.job-card.car-active{
+  border-color:rgba(0,212,255,0.6) !important;
+  background:rgba(0,212,255,0.06) !important;
+  box-shadow:0 0 40px rgba(0,212,255,0.12) !important;
+  transform:translateX(6px);
+}
+.timeline-item:nth-child(2) .job-card.car-active{
+  border-color:rgba(0,255,247,0.6) !important;
+  box-shadow:0 0 40px rgba(0,255,247,0.12) !important;
+}
+.timeline-item:nth-child(3) .job-card.car-active{
+  border-color:rgba(0,255,136,0.6) !important;
+  box-shadow:0 0 40px rgba(0,255,136,0.12) !important;
+}
 
 /* SECTION GENERAL */
 .section{position:relative;z-index:2;min-height:100vh;padding:80px 6vw;display:flex;flex-direction:column;justify-content:center;}
@@ -300,7 +405,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
 
 /* PDF PRINT STYLES */
 @media print{
-  nav,.holo-avatar,.sound-btn,.cursor,.cursor-ring,.ambient-left,.ambient-right,#road-wrapper,body::before{display:none!important;}
+  nav,.holo-avatar,.sound-btn,.cursor,.cursor-ring,.ambient-left,.ambient-right,#vertical-car,.vroad-lane,.vroad-lines,.vroad-edge-left,.vroad-edge-right,.v-headlight,.v-speed-lines,body::before{display:none!important;}
   body{background:#fff;color:#000;cursor:auto;}
   .section{page-break-inside:avoid;min-height:auto;padding:30px 20px;}
   .job-card,.patent-card,.project-card,.edu-card{border:1px solid #ccc!important;background:#f9f9f9!important;break-inside:avoid;}
@@ -350,76 +455,59 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
     <div class="stat-box"><div class="stat-num" data-target="66" data-suffix="%">66%</div><div class="stat-label">Max Cost Reduction</div></div>
     <div class="stat-box"><div class="stat-num" data-target="2" data-suffix="M+">2M+</div><div class="stat-label">Annual Savings</div></div>
   </div>
-  <div class="scroll-cta" onclick="document.getElementById('road-wrapper').scrollIntoView({behavior:'smooth'})">
+  <div class="scroll-cta" onclick="document.getElementById('experience').scrollIntoView({behavior:'smooth'})">
     <span>DRIVE THROUGH MY CAREER</span>
     <div class="scroll-arrow"></div>
   </div>
 </section>
 
-<!-- SCROLL-DRIVEN ROAD + CAR -->
-<div id="road-wrapper">
-  <div id="road-sticky">
-    <div class="road-surface"></div>
-    <div class="road-center-line"></div>
-    <div class="road-edge-line"></div>
-    <!-- Speed lines (behind car) -->
-    <div class="speed-lines" id="speedLines" style="right:calc(50% + 90px);"></div>
-    <!-- Headlight beam -->
-    <div class="headlight" id="headlight"></div>
-    <!-- THE CAR -->
-    <div id="scroll-car">
-      <svg width="210" height="72" viewBox="0 0 210 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="cg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="hg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <!-- Body -->
-        <path d="M8 50 Q13 27 56 22 Q85 15 106 15 Q136 15 158 22 Q182 28 198 42 L202 50 Q202 58 194 58 L16 58 Q8 58 8 50Z" fill="#08121f" stroke="#00d4ff" stroke-width="1.4"/>
-        <!-- Roof -->
-        <path d="M62 22 Q78 7 106 5 Q134 5 148 22" fill="#040d1a" stroke="#00d4ff" stroke-width=".9"/>
-        <!-- Windshield -->
-        <path d="M68 22 Q80 9 106 7 Q130 7 142 22" fill="rgba(0,212,255,0.14)" stroke="rgba(0,212,255,0.45)" stroke-width=".8"/>
-        <!-- Rear glass -->
-        <path d="M62 22 L71 22 Q73 11 78 9" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.3)" stroke-width=".8"/>
-        <!-- Door line -->
-        <line x1="106" y1="15" x2="106" y2="58" stroke="rgba(0,212,255,0.18)" stroke-width=".8"/>
-        <!-- Door handle lines -->
-        <line x1="82" y1="38" x2="98" y2="38" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
-        <line x1="114" y1="38" x2="130" y2="38" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
-        <!-- Headlight -->
-        <ellipse cx="194" cy="42" rx="6" ry="3.5" fill="rgba(0,255,247,0.9)" filter="url(#hg)"/>
-        <ellipse cx="194" cy="42" rx="4" ry="2.5" fill="#fff"/>
-        <!-- Tail light -->
-        <rect x="10" y="42" width="9" height="5" rx="1" fill="rgba(255,80,0,0.92)"/>
-        <!-- EV underbody glow -->
-        <rect x="28" y="57" width="154" height="3" rx="1.5" fill="rgba(0,212,255,0.18)"/>
-        <!-- Front wheel -->
-        <circle cx="158" cy="58" r="13" fill="#060e1a" stroke="#00d4ff" stroke-width="1.4"/>
-        <circle cx="158" cy="58" r="7.5" fill="#0a1628" stroke="rgba(0,212,255,0.4)" stroke-width=".9"/>
-        <circle cx="158" cy="58" r="2.5" fill="#00d4ff"/>
-        <line x1="158" y1="50.5" x2="158" y2="54" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="fs1"/>
-        <line x1="158" y1="62" x2="158" y2="65.5" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="fs2"/>
-        <line x1="150.5" y1="58" x2="154" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="fs3"/>
-        <line x1="162" y1="58" x2="165.5" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="fs4"/>
-        <!-- Rear wheel -->
-        <circle cx="52" cy="58" r="13" fill="#060e1a" stroke="#00d4ff" stroke-width="1.4"/>
-        <circle cx="52" cy="58" r="7.5" fill="#0a1628" stroke="rgba(0,212,255,0.4)" stroke-width=".9"/>
-        <circle cx="52" cy="58" r="2.5" fill="#00d4ff"/>
-        <line x1="52" y1="50.5" x2="52" y2="54" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="rs1"/>
-        <line x1="52" y1="62" x2="52" y2="65.5" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="rs2"/>
-        <line x1="44.5" y1="58" x2="48" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="rs3"/>
-        <line x1="56" y1="58" x2="59.5" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4" id="rs4"/>
-        <!-- Logo -->
-        <text x="102" y="41" font-family="monospace" font-size="6.5" fill="rgba(0,212,255,0.75)" text-anchor="middle" font-weight="bold">RP</text>
-      </svg>
-    </div>
-  </div>
+<!-- VERTICAL ROAD + CAR + EXPERIENCE -->
+<!-- Fixed road elements -->
+<div class="vroad-lane" id="vroadLane" style="display:none;"></div>
+<div class="vroad-lines" id="vroadLines" style="display:none;"></div>
+<div class="vroad-edge-left" id="vroadEdgeL" style="display:none;"></div>
+<div class="vroad-edge-right" id="vroadEdgeR" style="display:none;"></div>
+<div class="v-headlight" id="vHeadlight" style="display:none;"></div>
+<div class="v-speed-lines" id="vSpeedLines" style="display:none;">
+  <div class="vsl"></div><div class="vsl"></div><div class="vsl"></div>
+</div>
+<!-- Sticky car -->
+<div id="vertical-car" style="display:none;">
+  <svg width="110" height="38" viewBox="0 0 210 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="vcg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="vhg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <path d="M8 50 Q13 27 56 22 Q85 15 106 15 Q136 15 158 22 Q182 28 198 42 L202 50 Q202 58 194 58 L16 58 Q8 58 8 50Z" fill="#08121f" stroke="#00d4ff" stroke-width="1.4"/>
+    <path d="M62 22 Q78 7 106 5 Q134 5 148 22" fill="#040d1a" stroke="#00d4ff" stroke-width=".9"/>
+    <path d="M68 22 Q80 9 106 7 Q130 7 142 22" fill="rgba(0,212,255,0.14)" stroke="rgba(0,212,255,0.45)" stroke-width=".8"/>
+    <line x1="106" y1="15" x2="106" y2="58" stroke="rgba(0,212,255,0.18)" stroke-width=".8"/>
+    <ellipse cx="194" cy="42" rx="6" ry="3.5" fill="rgba(0,255,247,0.9)" filter="url(#vhg)"/>
+    <ellipse cx="194" cy="42" rx="4" ry="2.5" fill="#fff"/>
+    <rect x="10" y="42" width="9" height="5" rx="1" fill="rgba(255,80,0,0.92)"/>
+    <rect x="28" y="57" width="154" height="3" rx="1.5" fill="rgba(0,212,255,0.18)"/>
+    <circle cx="158" cy="58" r="13" fill="#060e1a" stroke="#00d4ff" stroke-width="1.4"/>
+    <circle cx="158" cy="58" r="7.5" fill="#0a1628" stroke="rgba(0,212,255,0.4)" stroke-width=".9"/>
+    <circle cx="158" cy="58" r="2.5" fill="#00d4ff"/>
+    <line x1="158" y1="50.5" x2="158" y2="54" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="158" y1="62" x2="158" y2="65.5" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="150.5" y1="58" x2="154" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="162" y1="58" x2="165.5" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <circle cx="52" cy="58" r="13" fill="#060e1a" stroke="#00d4ff" stroke-width="1.4"/>
+    <circle cx="52" cy="58" r="7.5" fill="#0a1628" stroke="rgba(0,212,255,0.4)" stroke-width=".9"/>
+    <circle cx="52" cy="58" r="2.5" fill="#00d4ff"/>
+    <line x1="52" y1="50.5" x2="52" y2="54" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="52" y1="62" x2="52" y2="65.5" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="44.5" y1="58" x2="48" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <line x1="56" y1="58" x2="59.5" y2="58" stroke="rgba(0,212,255,0.55)" stroke-width="1.4"/>
+    <text x="102" y="41" font-family="monospace" font-size="6.5" fill="rgba(0,212,255,0.75)" text-anchor="middle" font-weight="bold">RP</text>
+  </svg>
 </div>
 
 <div class="section-divider"></div>
 
 <!-- WORK EXPERIENCE (TIMELINE) -->
-<section class="section" id="experience">
+<section class="section" id="experience" style="padding-left:130px;">
   <div class="section-label fade-in">// CAREER JOURNEY</div>
   <div class="section-title fade-in">WORK EXPERIENCE</div>
 
@@ -1022,63 +1110,51 @@ document.querySelectorAll('a,button,.job-card,.skill-tag,.project-card,.stat-box
   });
 });
 
-// ====== SCROLL-DRIVEN CAR ======
-const scrollCar = document.getElementById('scroll-car');
-const headlightEl = document.getElementById('headlight');
-const speedLinesEl = document.getElementById('speedLines');
+// ====== VERTICAL STICKY CAR ======
+const vertCar   = document.getElementById('vertical-car');
+const vroadLane = document.getElementById('vroadLane');
+const vroadLines= document.getElementById('vroadLines');
+const vroadEdgeL= document.getElementById('vroadEdgeL');
+const vroadEdgeR= document.getElementById('vroadEdgeR');
+const vHeadlight= document.getElementById('vHeadlight');
+const vSpeedLines=document.getElementById('vSpeedLines');
+const expSection= document.getElementById('experience');
+const jobCards  = document.querySelectorAll('.job-card');
+
 let lastScrollY = 0;
-let carPosPercent = 10;
-let targetCarPos = 10;
-let carVelocity = 0;
-let lastCarUpdateTime = performance.now();
-let isMoving = false;
 let movingTimeout;
-
-// Build speed lines
-for (let i = 0; i < 4; i++) {
-  const sl = document.createElement('div');
-  sl.className = 'sl';
-  speedLinesEl.appendChild(sl);
-}
-
-function updateCar() {
-  const now = performance.now();
-  const dt = Math.min((now - lastCarUpdateTime) / 1000, 0.05);
-  lastCarUpdateTime = now;
-
-  const scrollFraction = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-  targetCarPos = 5 + scrollFraction * 75;
-
-  const spring = 8, damping = 0.85;
-  carVelocity += (targetCarPos - carPosPercent) * spring * dt;
-  carVelocity *= damping;
-  carPosPercent += carVelocity * dt;
-  carPosPercent = Math.max(5, Math.min(85, carPosPercent));
-
-  scrollCar.style.left = carPosPercent + '%';
-
-  // Update headlight position
-  headlightEl.style.left = (carPosPercent + 15) + '%';
-
-  // Update speed lines position
-  speedLinesEl.style.right = 'auto';
-  speedLinesEl.style.left = (carPosPercent - 8) + '%';
-
-  // Show/hide speed lines based on movement
-  const speed = Math.abs(carVelocity);
-  speedLinesEl.style.opacity = Math.min(speed / 20, 1);
-
-  requestAnimationFrame(updateCar);
-}
-requestAnimationFrame(updateCar);
-
-// Scroll sound
 let lastSoundTime = 0;
+
+function showRoad(show) {
+  const els = [vertCar, vroadLane, vroadLines, vroadEdgeL, vroadEdgeR, vHeadlight, vSpeedLines];
+  els.forEach(el => { if(el) el.style.display = show ? 'block' : 'none'; });
+}
+
+function updateVerticalCar() {
+  const expRect = expSection.getBoundingClientRect();
+  const inExp = expRect.top < window.innerHeight && expRect.bottom > 0;
+  showRoad(inExp);
+
+  if (inExp) {
+    // Highlight the job card closest to center of viewport
+    jobCards.forEach(card => {
+      const r = card.getBoundingClientRect();
+      const cardCenter = r.top + r.height / 2;
+      const vpCenter = window.innerHeight / 2;
+      const isActive = Math.abs(cardCenter - vpCenter) < r.height * 0.6;
+      card.classList.toggle('car-active', isActive);
+    });
+  } else {
+    jobCards.forEach(c => c.classList.remove('car-active'));
+  }
+}
+
+// Scroll sound + car update
 window.addEventListener('scroll', () => {
+  updateVerticalCar();
   const now = Date.now();
   const delta = Math.abs(window.scrollY - lastScrollY);
   lastScrollY = window.scrollY;
-
   if (now - lastSoundTime > 400 && delta > 50) {
     playEngineRev();
     lastSoundTime = now;
@@ -1086,6 +1162,9 @@ window.addEventListener('scroll', () => {
   clearTimeout(movingTimeout);
   movingTimeout = setTimeout(() => { if (delta > 30) playGearShift(); }, 300);
 });
+
+// Initial check
+updateVerticalCar();
 
 // ====== FADE-IN OBSERVER ======
 const fadeObserver = new IntersectionObserver(entries => {
