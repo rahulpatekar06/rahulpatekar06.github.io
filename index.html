@@ -76,7 +76,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{background:var(--dark);color:#e0f0ff;font-family:'Exo 2',sans-serif;overflow-x:hidden;cursor:none;}
+body{background:var(--dark);color:#e0f0ff;font-family:'Exo 2',sans-serif;overflow-x:hidden;cursor:none;} @supports (-webkit-hyphens:none){body{cursor:auto;}}
 
 /* CURSOR */
 .cursor{width:12px;height:12px;border-radius:50%;background:var(--neon-cyan);position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 15px var(--neon-cyan),0 0 30px var(--neon-cyan);transition:width .2s,height .2s;}
@@ -302,7 +302,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
   .bullet-item{opacity:1!important;transform:none!important;color:#333!important;}
   .metric-badge{background:#e8f8f0!important;color:#0a5e35!important;border:1px solid #0a5e35!important;}
   .scene-thumb{display:none;}
-  .hero-title{font-size:2rem!important;color:#000!important;-webkit-text-fill-color:#000!important;}
+  .hero-title{font-size:2rem!important;color:#000!important;}
   .stat-num{color:#0055aa!important;}
   .skill-tag{border:1px solid #888!important;color:#333!important;}
 }
@@ -912,6 +912,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content
 
 <script>
 // ====== AUDIO ENGINE ======
+// Note: Sound starts OFF by default (browser autoplay policy)
+// User must click to enable - this is correct behavior
 let soundOn = false;
 let audioCtx = null;
 
@@ -971,6 +973,14 @@ function toggleSound() {
 }
 
 // ====== CUSTOM CURSOR ======
+// Detect Safari - use system cursor on Safari, custom on Chrome/Firefox
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+if (isSafari) {
+  document.body.style.cursor = 'auto';
+  document.getElementById('cursor').style.display = 'none';
+  document.getElementById('cursorRing').style.display = 'none';
+}
+// ====== CUSTOM CURSOR (Chrome/Firefox only) ======
 const cursor = document.getElementById('cursor');
 const cursorRing = document.getElementById('cursorRing');
 document.addEventListener('mousemove', e => {
